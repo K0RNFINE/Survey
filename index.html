@@ -1,533 +1,597 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Survey</title>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>แบบสอบถามพฤติกรรมการใช้โทรศัพท์ของนักเรียนชั้น ม.5</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Sarabun:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --bg: #f5f2ed;
-      --surface: #ffffff;
-      --surface2: #f0ece6;
-      --border: rgba(0,0,0,0.08);
-      --gold: #a8793a;
-      --gold-light: #c49a52;
-      --text: #1e1a14;
-      --muted: #8a7f72;
-      --error: #d94f4f;
-      --success: #3d9e52;
-      --radius: 16px;
-      --transition: 0.35s cubic-bezier(0.4,0,0.2,1);
+    :root{
+      --bg:#f5f2ed;--surface:#fff;--surface2:#f0ece6;
+      --border:rgba(0,0,0,.08);--gold:#a8793a;--gold-light:#c49a52;
+      --text:#1e1a14;--muted:#8a7f72;--error:#d94f4f;
+      --radius:16px;--tr:.35s cubic-bezier(.4,0,.2,1);
     }
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     html{scroll-behavior:smooth}
-    body{
-      background:var(--bg);color:var(--text);
-      font-family:'DM Sans',sans-serif;font-weight:300;
-      min-height:100vh;overflow-x:hidden;position:relative;
-    }
-    body::before{
-      content:'';position:fixed;inset:0;
-      background:
-        radial-gradient(ellipse 60% 50% at 15% 0%,rgba(168,121,58,.08) 0%,transparent 65%),
-        radial-gradient(ellipse 50% 60% at 85% 100%,rgba(168,121,58,.05) 0%,transparent 65%);
-      pointer-events:none;z-index:0;
-    }
-    body::after{
-      content:'';position:fixed;inset:0;
-      background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.025'/%3E%3C/svg%3E");
-      pointer-events:none;z-index:0;opacity:.6;
-    }
+    body{background:var(--bg);color:var(--text);font-family:'Sarabun',sans-serif;font-weight:300;min-height:100vh;overflow-x:hidden;position:relative}
+    body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 50% at 15% 0%,rgba(168,121,58,.08) 0%,transparent 65%),radial-gradient(ellipse 50% 60% at 85% 100%,rgba(168,121,58,.05) 0%,transparent 65%);pointer-events:none;z-index:0}
     .wrapper{position:relative;z-index:1;max-width:660px;margin:0 auto;padding:48px 20px 100px}
 
-    /* ── HEADER ── */
-    .header{text-align:center;margin-bottom:44px;animation:fadeUp .8s ease both}
-    .survey-title{
-      font-family:'Cormorant Garamond',serif;
-      font-size:clamp(1.7rem,5vw,2.6rem);
-      font-weight:300;line-height:1.15;
-      color:var(--text);margin-bottom:10px;
-    }
-    .survey-title em{font-style:italic;color:var(--gold-light)}
-    .survey-creators{
-      font-size:11px;color:var(--muted);
-      letter-spacing:.06em;line-height:1.8;margin-top:6px;
-    }
+    /* HEADER */
+    .header{text-align:center;margin-bottom:36px;animation:fadeUp .8s ease both}
+    .survey-title{font-family:'Cormorant Garamond',serif;font-size:clamp(1.5rem,4.5vw,2.2rem);font-weight:400;line-height:1.25;color:var(--text);margin-bottom:8px}
+    .survey-creators{font-size:11px;color:var(--muted);letter-spacing:.04em;line-height:2;margin-top:8px}
     .survey-creators strong{color:var(--gold);font-weight:500}
 
-    /* ── PROGRESS ── */
-    .progress-wrap{margin-bottom:32px;animation:fadeUp .8s .1s ease both}
-    .progress-meta{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:8px;letter-spacing:.04em}
+    /* MUSIC PLAYER */
+    .music-player{
+      position:fixed;bottom:24px;right:24px;z-index:999;
+      display:flex;align-items:center;gap:12px;
+      background:var(--surface);border:1px solid var(--border);border-radius:100px;
+      padding:10px 18px;max-width:300px;
+      box-shadow:0 4px 24px rgba(0,0,0,.12);
+    }
+    .music-btn{width:34px;height:34px;border-radius:50%;border:none;background:linear-gradient(135deg,#a8793a,#c49a52);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform var(--tr),box-shadow var(--tr)}
+    .music-btn:hover{transform:scale(1.08);box-shadow:0 4px 16px rgba(168,121,58,.35)}
+    .music-info{flex:1;min-width:0}
+    .music-title{font-size:12px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .music-sub{font-size:10px;color:var(--muted);margin-top:2px}
+    .music-wave{display:flex;align-items:flex-end;gap:2px;height:18px;opacity:.4}
+    .music-wave span{width:3px;background:var(--gold);border-radius:2px;animation:wave 1.2s ease-in-out infinite}
+    .music-wave span:nth-child(2){animation-delay:.2s;height:60%}
+    .music-wave span:nth-child(3){animation-delay:.4s;height:90%}
+    .music-wave span:nth-child(4){animation-delay:.1s;height:50%}
+    .music-wave span:nth-child(5){animation-delay:.3s;height:75%}
+    .music-wave.paused span{animation-play-state:paused}
+    .music-player.playing .music-wave{opacity:1}
+    @keyframes wave{0%,100%{height:30%}50%{height:100%}}
+
+    /* PROGRESS */
+    .progress-wrap{margin-bottom:28px;animation:fadeUp .8s .15s ease both}
+    .progress-meta{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:8px}
     .progress-bar{height:2px;background:var(--border);border-radius:2px;overflow:hidden}
     .progress-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-light));border-radius:2px;transition:width .6s cubic-bezier(.4,0,.2,1);width:0%}
 
-    /* ── PAGE INDICATOR ── */
-    .page-indicator{
-      display:flex;align-items:center;justify-content:center;gap:8px;
-      margin-bottom:28px;animation:fadeUp .8s .15s ease both;
-    }
-    .page-dot{
-      width:28px;height:4px;border-radius:2px;
-      background:rgba(0,0,0,0.12);transition:background var(--transition),width var(--transition);
-    }
+    /* PAGE DOTS */
+    .page-indicator{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:24px;animation:fadeUp .8s .2s ease both}
+    .page-dot{width:28px;height:4px;border-radius:2px;background:rgba(0,0,0,.12);transition:background var(--tr),width var(--tr)}
     .page-dot.active{background:var(--gold);width:40px}
     .page-dot.done{background:rgba(168,121,58,.4)}
 
-    /* ── CARDS ── */
-    .card{
-      background:var(--surface);border:1px solid var(--border);
-      border-radius:var(--radius);padding:28px 28px 24px;margin-bottom:14px;
-      transition:border-color var(--transition),box-shadow var(--transition);
-      animation:fadeUp .6s ease both;position:relative;overflow:hidden;
-      box-shadow:0 2px 12px rgba(0,0,0,.05);
-    }
-    .card::before{
-      content:'';position:absolute;top:0;left:0;right:0;height:1px;
-      background:linear-gradient(90deg,transparent,rgba(168,121,58,.35),transparent);
-      opacity:0;transition:opacity var(--transition);
-    }
+    /* CARDS */
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:26px 26px 22px;margin-bottom:14px;transition:border-color var(--tr),box-shadow var(--tr);animation:fadeUp .6s ease both;position:relative;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.05)}
+    .card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(168,121,58,.35),transparent);opacity:0;transition:opacity var(--tr)}
     .card:focus-within{border-color:rgba(168,121,58,.35);box-shadow:0 0 0 4px rgba(168,121,58,.07),0 8px 32px rgba(0,0,0,.06)}
     .card:focus-within::before{opacity:1}
-    .card:nth-child(1){animation-delay:.12s}
-    .card:nth-child(2){animation-delay:.20s}
-    .card:nth-child(3){animation-delay:.28s}
-    .card:nth-child(4){animation-delay:.36s}
-    .card:nth-child(5){animation-delay:.44s}
-    .card:nth-child(6){animation-delay:.52s}
     .card.has-error{border-color:rgba(217,79,79,.4)!important}
+    .card:nth-child(1){animation-delay:.08s}.card:nth-child(2){animation-delay:.16s}.card:nth-child(3){animation-delay:.24s}.card:nth-child(4){animation-delay:.32s}
 
     .question-num{font-size:10px;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
-    .question-label{font-family:'Cormorant Garamond',serif;font-size:1.18rem;font-weight:400;line-height:1.4;color:var(--text);margin-bottom:18px}
+    .question-label{font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:400;line-height:1.45;color:var(--text);margin-bottom:16px}
     .required-star{color:var(--gold);margin-left:3px}
 
-    /* ── INPUTS ── */
-    .field-input,.field-select{
-      width:100%;background:var(--surface2);border:1px solid var(--border);
-      border-radius:10px;color:var(--text);
-      font-family:'DM Sans',sans-serif;font-size:14px;font-weight:300;
-      padding:13px 15px;outline:none;
-      transition:border-color var(--transition),box-shadow var(--transition);
-    }
+    /* INPUTS */
+    .field-input,.field-select{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Sarabun',sans-serif;font-size:14px;font-weight:300;padding:13px 15px;outline:none;transition:border-color var(--tr),box-shadow var(--tr)}
     .field-input::placeholder{color:var(--muted)}
     .field-input:focus,.field-select:focus{border-color:rgba(168,121,58,.5);box-shadow:0 0 0 3px rgba(168,121,58,.08)}
-    .field-select{
-      appearance:none;cursor:pointer;
-      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888880' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-      background-repeat:no-repeat;background-position:right 15px center;
-    }
+    .field-select{appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888880' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 15px center}
     .field-select option{background:var(--surface2)}
 
-    /* ── RADIO OPTIONS ── */
+    /* RADIO */
     .options-grid{display:flex;flex-direction:column;gap:9px}
     .option-item{position:relative}
     .option-item input{position:absolute;opacity:0;width:0;height:0}
-    .option-label{
-      display:flex;align-items:center;gap:11px;padding:11px 14px;
-      background:var(--surface2);border:1px solid var(--border);border-radius:10px;
-      cursor:pointer;font-size:13.5px;color:var(--muted);
-      transition:all var(--transition);user-select:none;
-    }
-    .option-dot{
-      width:17px;height:17px;border-radius:50%;border:1.5px solid var(--border);
-      flex-shrink:0;transition:all var(--transition);
-      display:flex;align-items:center;justify-content:center;
-    }
-    .option-dot::after{
-      content:'';width:7px;height:7px;border-radius:50%;
-      background:var(--gold);opacity:0;transition:opacity var(--transition),transform var(--transition);transform:scale(0);
-    }
-    .option-item input:checked + .option-label{border-color:rgba(168,121,58,.5);background:rgba(168,121,58,.07);color:var(--text)}
-    .option-item input:checked + .option-label .option-dot{border-color:var(--gold)}
-    .option-item input:checked + .option-label .option-dot::after{opacity:1;transform:scale(1)}
+    .option-label{display:flex;align-items:center;gap:11px;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;cursor:pointer;font-size:14px;color:var(--muted);transition:all var(--tr);user-select:none}
+    .option-dot{width:17px;height:17px;border-radius:50%;border:1.5px solid var(--border);flex-shrink:0;transition:all var(--tr);display:flex;align-items:center;justify-content:center}
+    .option-dot::after{content:'';width:7px;height:7px;border-radius:50%;background:var(--gold);opacity:0;transition:opacity var(--tr),transform var(--tr);transform:scale(0)}
+    .option-item input:checked+.option-label{border-color:rgba(168,121,58,.5);background:rgba(168,121,58,.07);color:var(--text)}
+    .option-item input:checked+.option-label .option-dot{border-color:var(--gold)}
+    .option-item input:checked+.option-label .option-dot::after{opacity:1;transform:scale(1)}
     .option-label:hover{border-color:rgba(168,121,58,.25);color:var(--text)}
 
-    /* ── ERRORS ── */
+    /* ERROR */
     .field-error{font-size:11.5px;color:var(--error);margin-top:8px;display:none}
 
-    /* ── BUTTONS ── */
-    .btn-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:28px;animation:fadeUp .6s .55s ease both}
+    /* BUTTONS */
+    .btn-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:28px}
     .btn-row.center{justify-content:center}
-    .btn{
-      display:inline-flex;align-items:center;gap:9px;
-      font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;
-      letter-spacing:.09em;text-transform:uppercase;border:none;
-      border-radius:100px;padding:14px 32px;cursor:pointer;
-      transition:all var(--transition);position:relative;overflow:hidden;
-    }
+    .btn{display:inline-flex;align-items:center;gap:9px;font-family:'Sarabun',sans-serif;font-size:13px;font-weight:500;letter-spacing:.06em;border:none;border-radius:100px;padding:14px 32px;cursor:pointer;transition:all var(--tr);position:relative;overflow:hidden}
     .btn-primary{background:linear-gradient(135deg,#a8793a,#c49a52);color:#fff}
-    .btn-primary::before{content:'';position:absolute;inset:0;background:rgba(255,255,255,.15);opacity:0;transition:opacity var(--transition)}
+    .btn-primary::before{content:'';position:absolute;inset:0;background:rgba(255,255,255,.15);opacity:0;transition:opacity var(--tr)}
     .btn-primary:hover::before{opacity:1}
     .btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 36px rgba(168,121,58,.3)}
     .btn-primary:active{transform:translateY(0)}
     .btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
     .btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border)}
     .btn-ghost:hover{border-color:rgba(168,121,58,.3);color:var(--text)}
-    .btn-icon{width:16px;height:16px;transition:transform var(--transition)}
+    .btn-icon{width:16px;height:16px;transition:transform var(--tr)}
     .btn-primary:hover .btn-icon{transform:translateX(3px)}
     .btn-ghost:hover .btn-icon-back{transform:translateX(-3px)}
-
-    /* spinner */
     .spinner{width:15px;height:15px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none}
 
-    /* ── TOAST ── */
-    .toast{
-      position:fixed;bottom:28px;left:50%;
-      transform:translateX(-50%) translateY(20px);
-      background:#fff;border:1px solid var(--border);
-      border-radius:100px;padding:12px 24px;font-size:13px;color:var(--text);
-      display:flex;align-items:center;gap:9px;
-      opacity:0;pointer-events:none;transition:all .4s cubic-bezier(.4,0,.2,1);
-      z-index:100;white-space:nowrap;box-shadow:0 8px 32px rgba(0,0,0,.12);
-    }
+    /* POPUP MODAL */
+    .popup-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);backdrop-filter:blur(4px);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn .25s ease}
+    .popup-overlay.hidden{display:none}
+    .popup-box{background:#fff;border-radius:20px;padding:32px 28px;max-width:360px;width:100%;box-shadow:0 24px 64px rgba(0,0,0,.18);text-align:center;animation:popUp .3s cubic-bezier(.34,1.56,.64,1) both}
+    .popup-emoji{font-size:48px;margin-bottom:16px;display:block}
+    .popup-title{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:400;margin-bottom:10px;color:var(--text)}
+    .popup-body{font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:24px}
+    .popup-body ul{list-style:none;padding:0;margin-top:10px}
+    .popup-body ul li{padding:6px 0;border-bottom:1px solid var(--border);font-size:13px;color:var(--text)}
+    .popup-body ul li:last-child{border-bottom:none}
+    .popup-close{background:linear-gradient(135deg,#a8793a,#c49a52);color:#fff;border:none;border-radius:100px;padding:12px 32px;font-family:'Sarabun',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:all var(--tr)}
+    .popup-close:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(168,121,58,.35)}
+
+    /* TOAST */
+    .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);background:#fff;border:1px solid var(--border);border-radius:100px;padding:12px 24px;font-size:13px;color:var(--text);display:flex;align-items:center;gap:9px;opacity:0;pointer-events:none;transition:all .4s cubic-bezier(.4,0,.2,1);z-index:300;white-space:nowrap;box-shadow:0 8px 32px rgba(0,0,0,.12)}
     .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
     .toast.success{border-color:rgba(61,158,82,.3)}
     .toast.error{border-color:rgba(217,79,79,.3)}
 
-    /* ── SUCCESS ── */
-    .success-screen{display:none;text-align:center;padding:80px 24px;animation:fadeUp .8s ease both}
-    .success-emblem{
-      width:76px;height:76px;border-radius:50%;
-      background:rgba(168,121,58,.1);border:1px solid rgba(168,121,58,.3);
-      display:flex;align-items:center;justify-content:center;
-      margin:0 auto 28px;font-size:28px;
-    }
-    .success-screen h2{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:300;margin-bottom:12px}
-    .success-screen p{color:var(--muted);font-size:14px;line-height:1.8}
+    /* ALREADY-DONE SCREEN */
+    .already-screen{display:none;text-align:center;padding:80px 24px;animation:fadeUp .8s ease both}
 
-    /* ── PAGE SLIDER — pages sit side by side, clipped ── */
-    .pages-viewport{
-      overflow:hidden;        /* clips page 2 completely */
-      position:relative;
-    }
-    .pages-track{
-      display:flex;
-      width:200%;           /* holds both pages */
-      transition:transform .42s cubic-bezier(.4,0,.2,1);
-    }
-    .pages-track.on-page2{
-      transform:translateX(-50%);
-    }
-    .survey-page{
-      width:50%;            /* each page = full visible width */
-      flex-shrink:0;
-    }
-    /* animations per card still work */
-    .survey-page .card:nth-child(1){animation-delay:.08s}
-    .survey-page .card:nth-child(2){animation-delay:.16s}
-    .survey-page .card:nth-child(3){animation-delay:.24s}
-    .survey-page .card:nth-child(4){animation-delay:.32s}
-    .survey-page .card:nth-child(5){animation-delay:.40s}
-    .survey-page .card:nth-child(6){animation-delay:.48s}
+    /* SUCCESS */
+    .success-screen{display:none;text-align:center;padding:80px 24px;animation:fadeUp .8s ease both}
+    .success-emblem{width:76px;height:76px;border-radius:50%;background:rgba(168,121,58,.1);border:1px solid rgba(168,121,58,.3);display:flex;align-items:center;justify-content:center;margin:0 auto 28px;font-size:28px}
+    .success-screen h2,.already-screen h2{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:300;margin-bottom:12px}
+    .success-screen p,.already-screen p{color:var(--muted);font-size:14px;line-height:1.8}
 
     @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    @keyframes popUp{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}
     @keyframes spin{to{transform:rotate(360deg)}}
-    @keyframes slideIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
-    @keyframes slideOut{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(-30px)}}
 
-    @media(max-width:480px){
-      .wrapper{padding:36px 14px 80px}
-      .card{padding:22px 18px 20px}
-    }
+    @media(max-width:480px){.wrapper{padding:32px 14px 80px}.card{padding:20px 16px 18px}}
   </style>
 </head>
 <body>
+
+<!-- POPUP MODAL -->
+<div class="popup-overlay hidden" id="popupOverlay">
+  <div class="popup-box">
+    <span class="popup-emoji" id="popupEmoji">😅</span>
+    <div class="popup-title" id="popupTitle">จริงหรือเปล่า?</div>
+    <div class="popup-body" id="popupBody">placeholder</div>
+    <button class="popup-close" id="popupCloseBtn" onclick="closePopup()">โอเค ยืนยัน</button>
+  </div>
+</div>
+
 <div class="wrapper">
 
-  <!-- ── HEADER ── -->
+  <!-- HEADER -->
   <header class="header">
-    <h1 class="survey-title">[ชื่อแบบสอบถาม]<br><em>[Survey Title Placeholder]</em></h1>
+    <h1 class="survey-title">แบบสอบถามพฤติกรรม<br>การใช้โทรศัพท์ของนักเรียนชั้น ม.5</h1>
     <div class="survey-creators">
-      จัดทำโดย &nbsp;·&nbsp; <strong>สมาชิกที่ 1 [ชื่อ]</strong> &nbsp;·&nbsp; <strong>สมาชิกที่ 2 [ชื่อ]</strong><br>
-      <strong>สมาชิกที่ 3 [ชื่อ]</strong> &nbsp;·&nbsp; <strong>สมาชิกที่ 4 [ชื่อ]</strong>
+      จัดทำโดย<br>
+      <strong>1) เอกรพี เสนแก้ว</strong> &nbsp;·&nbsp; <strong>2) ธรดล โสภาพันธุ์</strong><br>
+      <strong>3) ณปภัทร์พนฑ์ ยุวรรณศิริ</strong> &nbsp;·&nbsp; <strong>4) แดนวุฒิวัชร์ สุรินทร์</strong>
     </div>
   </header>
 
-  <!-- ── PROGRESS ── -->
-  <div class="progress-wrap">
+  <!-- PROGRESS -->
+  <div class="progress-wrap" id="progressWrap">
     <div class="progress-meta">
       <span id="progressLabel">หน้า 1 จาก 2</span>
-      <span id="progressPercent">0%</span>
+      <span id="progressPercent">50%</span>
     </div>
     <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
   </div>
 
-  <!-- ── PAGE DOTS ── -->
-  <div class="page-indicator">
+  <!-- PAGE DOTS -->
+  <div class="page-indicator" id="pageIndicator">
     <div class="page-dot active" id="dot1"></div>
     <div class="page-dot" id="dot2"></div>
   </div>
 
-  <div class="pages-viewport">
-   <div class="pages-track" id="pagesTrack">
+  <!-- PAGE 1 -->
+  <div id="page1">
 
-  <!-- ════ PAGE 1 ════ -->
-  <div class="survey-page" id="page1">
-
-    <!-- ระดับชั้น -->
-    <div class="card" data-q="class">
+    <!-- ระดับชั้น — ม.5 only -->
+    <div class="card">
       <div class="question-num">01</div>
       <label class="question-label" for="q_class">ระดับชั้น<span class="required-star">*</span></label>
       <select class="field-select" id="q_class">
-        <option value="" disabled selected>เลือกระดับชั้น…</option>
-        <optgroup label="มัธยมศึกษาปีที่ 4">
-          <option value="ม.4/1">ม.4/1</option><option value="ม.4/2">ม.4/2</option>
-          <option value="ม.4/3">ม.4/3</option><option value="ม.4/4">ม.4/4</option>
-          <option value="ม.4/5">ม.4/5</option><option value="ม.4/6">ม.4/6</option>
-          <option value="ม.4/7">ม.4/7</option><option value="ม.4/8">ม.4/8</option>
-          <option value="ม.4/9">ม.4/9</option><option value="ม.4/10">ม.4/10</option>
-          <option value="ม.4/11">ม.4/11</option><option value="ม.4/12">ม.4/12</option>
-          <option value="ม.4/13">ม.4/13</option>
-        </optgroup>
-        <optgroup label="มัธยมศึกษาปีที่ 5">
-          <option value="ม.5/1">ม.5/1</option><option value="ม.5/2">ม.5/2</option>
-          <option value="ม.5/3">ม.5/3</option><option value="ม.5/4">ม.5/4</option>
-          <option value="ม.5/5">ม.5/5</option><option value="ม.5/6">ม.5/6</option>
-          <option value="ม.5/7">ม.5/7</option><option value="ม.5/8">ม.5/8</option>
-          <option value="ม.5/9">ม.5/9</option><option value="ม.5/10">ม.5/10</option>
-          <option value="ม.5/11">ม.5/11</option><option value="ม.5/12">ม.5/12</option>
-          <option value="ม.5/13">ม.5/13</option>
-        </optgroup>
-        <optgroup label="มัธยมศึกษาปีที่ 6">
-          <option value="ม.6/1">ม.6/1</option><option value="ม.6/2">ม.6/2</option>
-          <option value="ม.6/3">ม.6/3</option><option value="ม.6/4">ม.6/4</option>
-          <option value="ม.6/5">ม.6/5</option><option value="ม.6/6">ม.6/6</option>
-          <option value="ม.6/7">ม.6/7</option><option value="ม.6/8">ม.6/8</option>
-          <option value="ม.6/9">ม.6/9</option><option value="ม.6/10">ม.6/10</option>
-          <option value="ม.6/11">ม.6/11</option><option value="ม.6/12">ม.6/12</option>
-          <option value="ม.6/13">ม.6/13</option>
-        </optgroup>
+        <option value="" disabled selected>เลือกห้องเรียน…</option>
+        <option value="ม.5/1">ม.5/1</option><option value="ม.5/2">ม.5/2</option>
+        <option value="ม.5/3">ม.5/3</option><option value="ม.5/4">ม.5/4</option>
+        <option value="ม.5/5">ม.5/5</option><option value="ม.5/6">ม.5/6</option>
+        <option value="ม.5/7">ม.5/7</option><option value="ม.5/8">ม.5/8</option>
+        <option value="ม.5/9">ม.5/9</option><option value="ม.5/10">ม.5/10</option>
+        <option value="ม.5/11">ม.5/11</option><option value="ม.5/12">ม.5/12</option>
+        <option value="ม.5/13">ม.5/13</option>
       </select>
       <div class="field-error" id="err_class">กรุณาเลือกระดับชั้น</div>
     </div>
 
     <!-- อายุ -->
-    <div class="card" data-q="age">
+    <div class="card">
       <div class="question-num">02</div>
       <label class="question-label" for="q_age">อายุ<span class="required-star">*</span></label>
-      <input class="field-input" type="number" id="q_age" placeholder="กรอกอายุ (ปี)…" min="10" max="25" />
+      <input class="field-input" type="number" id="q_age" placeholder="กรอกอายุ (ปี)…" min="10" max="25"/>
       <div class="field-error" id="err_age">กรุณากรอกอายุ</div>
     </div>
 
     <!-- เพศ -->
-    <div class="card" data-q="gender">
+    <div class="card">
       <div class="question-num">03</div>
       <div class="question-label">เพศ<span class="required-star">*</span></div>
       <div class="options-grid">
-        <label class="option-item">
-          <input type="radio" name="gender" value="ชาย">
-          <span class="option-label"><span class="option-dot"></span>ชาย</span>
-        </label>
-        <label class="option-item">
-          <input type="radio" name="gender" value="หญิง">
-          <span class="option-label"><span class="option-dot"></span>หญิง</span>
-        </label>
-        <label class="option-item">
-          <input type="radio" name="gender" value="ไม่ระบุ">
-          <span class="option-label"><span class="option-dot"></span>ไม่ระบุ / อื่นๆ</span>
-        </label>
+        <label class="option-item"><input type="radio" name="gender" value="ชาย"><span class="option-label"><span class="option-dot"></span>ชาย</span></label>
+        <label class="option-item"><input type="radio" name="gender" value="หญิง"><span class="option-label"><span class="option-dot"></span>หญิง</span></label>
+        <label class="option-item"><input type="radio" name="gender" value="ไม่ระบุ"><span class="option-label"><span class="option-dot"></span>ไม่ระบุ / อื่นๆ</span></label>
       </div>
       <div class="field-error" id="err_gender">กรุณาเลือกเพศ</div>
     </div>
 
-    <!-- Next button -->
     <div class="btn-row center">
       <button class="btn btn-primary" onclick="goToPage2()">
         <span>ถัดไป</span>
-        <svg class="btn-icon" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M3 9h12M10 4l5 5-5 5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+        <svg class="btn-icon" viewBox="0 0 18 18" fill="none"><path d="M3 9h12M10 4l5 5-5 5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
     </div>
   </div>
 
-  </div><!-- /page1 -->
-
-  <!-- page2 is injected here by JS only after page1 validates -->
+  <!-- PAGE 2 injected here -->
   <div id="page2-mount"></div>
 
-  </div><!-- /pages-track -->
-  </div><!-- /pages-viewport -->
+  <!-- ALREADY DONE -->
+  <div class="already-screen" id="alreadyScreen">
+    <div class="success-emblem">🔒</div>
+    <h2>ตอบแล้ว!</h2>
+    <p>คุณได้ทำแบบสอบถามนี้ไปแล้ว<br>ขอบคุณสำหรับความร่วมมือนะครับ 🙏<br><span style="font-size:12px;color:var(--muted);margin-top:8px;display:block">หากต้องการตอบใหม่ ให้ปิดแล้วเปิดเบราว์เซอร์ใหม่</span></p>
+  </div>
 
-  <!-- ── SUCCESS ── -->
+  <!-- SUCCESS -->
   <div class="success-screen" id="successScreen">
     <div class="success-emblem">✦</div>
     <h2>ขอบคุณมาก!</h2>
-    <p>คำตอบของคุณถูกบันทึกเรียบร้อยแล้ว<br>ขอขอบคุณที่ร่วมตอบแบบสอบถามนี้</p>
+    <p>คำตอบของคุณถูกบันทึกเรียบร้อยแล้ว<br>ขอขอบคุณที่ร่วมตอบแบบสอบถามนี้ 🙏</p>
   </div>
 
 </div><!-- /wrapper -->
 
-<!-- Toast -->
-<div class="toast" id="toast">
-  <span id="toastIcon"></span>
-  <span id="toastMsg"></span>
-</div>
+<div class="toast" id="toast"><span id="toastIcon"></span><span id="toastMsg"></span></div>
 
-<!-- ── Firebase ── -->
+<!-- Firebase -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-
   const app = initializeApp({
-    apiKey: "AIzaSyAapmeH48KAPa5vbojdfRqH-h-P6wJCldc",
-    authDomain: "survey-c4b83.firebaseapp.com",
-    databaseURL: "https://survey-c4b83-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "survey-c4b83",
-    storageBucket: "survey-c4b83.firebasestorage.app",
-    messagingSenderId: "444053252944",
-    appId: "1:444053252944:web:81a92130b2317810935a55",
-    measurementId: "G-F8M93XQQG6"
+    apiKey:"AIzaSyAapmeH48KAPa5vbojdfRqH-h-P6wJCldc",
+    authDomain:"survey-c4b83.firebaseapp.com",
+    databaseURL:"https://survey-c4b83-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId:"survey-c4b83",storageBucket:"survey-c4b83.firebasestorage.app",
+    messagingSenderId:"444053252944",
+    appId:"1:444053252944:web:81a92130b2317810935a55",measurementId:"G-F8M93XQQG6"
   });
-
   const db = getDatabase(app);
-  window._db = db;
-  window._ref = ref;
-  window._push = push;
+  window._db=db; window._ref=ref; window._push=push;
 </script>
 
 <script>
-/* ── Toast ── */
-function toast(msg, type='success'){
-  const t = document.getElementById('toast');
-  document.getElementById('toastMsg').textContent = msg;
-  document.getElementById('toastIcon').textContent = type==='success' ? '✓' : '✕';
-  t.className = `toast ${type} show`;
-  setTimeout(()=>{ t.className='toast'; }, 3500);
+/* ════════════════════════════════
+   SESSION COOKIE — one response per session
+   Uses sessionStorage (clears when tab/browser closes)
+════════════════════════════════ */
+function markDone(){
+  localStorage.setItem('survey_phone_done','1');
+}
+function isDone(){
+  return localStorage.getItem('survey_phone_done') === '1';
 }
 
-/* ── Validation helpers ── */
-function showErr(id){ const e=document.getElementById(id); if(e) e.style.display='block'; }
-function clearErrs(){ document.querySelectorAll('.field-error').forEach(e=>e.style.display='none'); }
+function hideAll(){
+  document.getElementById('page1').style.display='none';
+  document.getElementById('page2-mount').innerHTML='';
+  document.getElementById('progressWrap').style.display='none';
+  document.getElementById('pageIndicator').style.display='none';
+}
 
-/* ── Progress ── */
+// Check on load
+window.addEventListener('DOMContentLoaded', ()=>{
+  if(isDone()){
+    hideAll();
+    document.getElementById('alreadyScreen').style.display='block';
+  } else {
+    updateProgress(1);
+  }
+});
+
+/* ════════════════════════════════
+   MUSIC PLAYER
+════════════════════════════════ */
+let isPlaying = false;
+window.toggleMusic = function(){
+  const audio = document.getElementById('bgAudio');
+  const player = document.getElementById('musicPlayer');
+  const wave = document.getElementById('musicWave');
+  const iconPlay = document.getElementById('iconPlay');
+  const iconPause = document.getElementById('iconPause');
+  if(isPlaying){
+    audio.pause();
+    isPlaying=false;
+    iconPlay.style.display='block'; iconPause.style.display='none';
+    wave.classList.add('paused'); player.classList.remove('playing');
+  } else {
+    audio.play().catch(()=>{});
+    isPlaying=true;
+    iconPlay.style.display='none'; iconPause.style.display='block';
+    wave.classList.remove('paused'); player.classList.add('playing');
+  }
+};
+
+/* ════════════════════════════════
+   POPUP SYSTEM
+════════════════════════════════ */
+let pendingRadio = null;      // the radio input waiting to be confirmed
+let popupHitCount = 0;        // how many times popup shown for current option
+let requiredHits = 0;         // how many times user must dismiss before selecting
+
+const popupConfigs = {
+  // Q1 (หยิบโทรศัพท์): "ไม่เลย" needs 2 dismissals
+  q1_never: {
+    hits: 2,
+    emoji: '😂',
+    title: 'ไม่เลยจริงๆ เหรอ??',
+    body: `<p>แน่ใจนะว่าไม่ได้หยิบโทรศัพท์เลยแม้แต่ครั้งเดียว?</p>
+           <ul>
+             <li>📱 แล้วตอนเช้าปลุกนาฬิกาล่ะ?</li>
+             <li>🤔 ไม่ได้แชทกับใครเลยหรอ?</li>
+             <li>👀 โซเชียลก็ไม่เปิดเลยเหรอ?</li>
+           </ul>`,
+    closeLabels: ['โอเค ฉันแน่ใจ... (1/2)', 'ยืนยันอีกครั้ง! (2/2)']
+  },
+  // Q5 (AI): "ไม่เคย" needs 4 dismissals
+  q5_never: {
+    hits: 4,
+    emoji: '😏',
+    title: 'บอกมาซะดีๆ นะ...',
+    body: `<p>ไม่เคยใช้ AI เลยจริงๆ เหรอ? 🤨</p>
+           <ul>
+             <li>🤖 ChatGPT? ไม่เคยเลย?</li>
+             <li>✨ Gemini? ไม่รู้จักเลย?</li>
+             <li>🧠 Claude? ไม่เคยได้ยิน?</li>
+             <li>💭 Google ยังไม่ใช้เลยเหรอ?</li>
+           </ul>`,
+    closeLabels: ['เชื่อแล้ว... (1/4)','โอเค โอเค... (2/4)','จริงๆ นะ? (3/4)','สุดท้ายแล้ว ยืนยัน! (4/4)']
+  }
+};
+
+let activePopupConfig = null;
+
+function showPopup(config, radio){
+  pendingRadio = radio;
+  activePopupConfig = config;
+  popupHitCount = 0;
+  document.getElementById('popupEmoji').textContent = config.emoji;
+  document.getElementById('popupTitle').textContent = config.title;
+  document.getElementById('popupBody').innerHTML = config.body;
+  document.getElementById('popupCloseBtn').textContent = config.closeLabels[0];
+  document.getElementById('popupOverlay').classList.remove('hidden');
+}
+
+window.closePopup = function(){
+  popupHitCount++;
+  const config = activePopupConfig;
+  if(popupHitCount < config.hits){
+    // Show again
+    document.getElementById('popupCloseBtn').textContent = config.closeLabels[popupHitCount];
+    // Shake the box
+    const box = document.querySelector('.popup-box');
+    box.style.animation='none'; box.offsetHeight;
+    box.style.animation='popUp .3s cubic-bezier(.34,1.56,.64,1) both';
+  } else {
+    // Allow selection
+    document.getElementById('popupOverlay').classList.add('hidden');
+    if(pendingRadio){ pendingRadio.checked = true; }
+    pendingRadio = null; activePopupConfig = null; popupHitCount = 0;
+  }
+};
+
+/* ════════════════════════════════
+   HELPERS
+════════════════════════════════ */
+function toast(msg,type='success'){
+  const t=document.getElementById('toast');
+  document.getElementById('toastMsg').textContent=msg;
+  document.getElementById('toastIcon').textContent=type==='success'?'✓':'✕';
+  t.className=`toast ${type} show`;
+  setTimeout(()=>{t.className='toast';},3500);
+}
+function showErr(id){const e=document.getElementById(id);if(e)e.style.display='block';}
+function clearErrs(){document.querySelectorAll('.field-error').forEach(e=>e.style.display='none');}
 function updateProgress(page){
-  document.getElementById('progressFill').style.width = (page===1?50:100)+'%';
-  document.getElementById('progressPercent').textContent = (page===1?50:100)+'%';
-  document.getElementById('progressLabel').textContent = `หน้า ${page} จาก 2`;
-  document.getElementById('dot1').className = 'page-dot'+(page===1?' active':' done');
-  document.getElementById('dot2').className = 'page-dot'+(page===2?' active':'');
+  document.getElementById('progressFill').style.width=(page===1?50:100)+'%';
+  document.getElementById('progressPercent').textContent=(page===1?50:100)+'%';
+  document.getElementById('progressLabel').textContent=`หน้า ${page} จาก 2`;
+  document.getElementById('dot1').className='page-dot'+(page===1?' active':' done');
+  document.getElementById('dot2').className='page-dot'+(page===2?' active':'');
 }
 
-/* ── Page 2 HTML template (only exists in JS, never in DOM until needed) ── */
+/* ════════════════════════════════
+   PAGE 2 HTML — built in JS, injected on demand
+════════════════════════════════ */
 function buildPage2HTML(){
-  const makeQ = (num, label, name) => `
-    <div class="card">
-      <div class="question-num">0${num}</div>
-      <div class="question-label">${label}<span class="required-star">*</span></div>
-      <div class="options-grid">
-        <label class="option-item"><input type="radio" name="${name}" value="A"><span class="option-label"><span class="option-dot"></span>[ตัวเลือก A]</span></label>
-        <label class="option-item"><input type="radio" name="${name}" value="B"><span class="option-label"><span class="option-dot"></span>[ตัวเลือก B]</span></label>
-        <label class="option-item"><input type="radio" name="${name}" value="C"><span class="option-label"><span class="option-dot"></span>[ตัวเลือก C]</span></label>
-        <label class="option-item"><input type="radio" name="${name}" value="D"><span class="option-label"><span class="option-dot"></span>[ตัวเลือก D]</span></label>
-      </div>
-      <div class="field-error" id="err_${name}">กรุณาเลือกคำตอบ</div>
-    </div>`;
-
+  function opt(name, value, label){
+    return `<label class="option-item"><input type="radio" name="${name}" value="${value}"><span class="option-label"><span class="option-dot"></span>${label}</span></label>`;
+  }
   return `
-    ${makeQ(4,'[คำถามที่ 1 — Placeholder]','q1')}
-    ${makeQ(5,'[คำถามที่ 2 — Placeholder]','q2')}
-    ${makeQ(6,'[คำถามที่ 3 — Placeholder]','q3')}
-    ${makeQ(7,'[คำถามที่ 4 — Placeholder]','q4')}
-    ${makeQ(8,'[คำถามที่ 5 — Placeholder]','q5')}
+    <!-- Q1 หยิบโทรศัพท์ -->
+    <div class="card">
+      <div class="question-num">04</div>
+      <div class="question-label">หยิบโทรศัพท์ขึ้นมาบ่อยแค่ไหนใน 1 วัน<span class="required-star">*</span></div>
+      <div class="options-grid">
+        <label class="option-item">
+          <input type="radio" name="q1" value="ไม่เลย" data-popup="q1_never">
+          <span class="option-label"><span class="option-dot"></span>ไม่เลย 😇</span>
+        </label>
+        ${opt('q1','ไม่บ่อย','ไม่บ่อย')}
+        ${opt('q1','ค่อนข้างบ่อย','ค่อนข้างบ่อย')}
+        ${opt('q1','บ่อย','บ่อย')}
+      </div>
+      <div class="field-error" id="err_q1">กรุณาเลือกคำตอบ</div>
+    </div>
+
+    <!-- Q2 ใช้นานแค่ไหน -->
+    <div class="card">
+      <div class="question-num">05</div>
+      <div class="question-label">โดยปกติใช้มือถือนานแค่ไหน<span class="required-star">*</span></div>
+      <div class="options-grid">
+        ${opt('q2','0-2ชม','0–2 ชั่วโมง')}
+        ${opt('q2','2-4ชม','2–4 ชั่วโมง')}
+        ${opt('q2','4-6ชม','4–6 ชั่วโมง')}
+        ${opt('q2','6ชม+','6 ชั่วโมงขึ้นไป')}
+      </div>
+      <div class="field-error" id="err_q2">กรุณาเลือกคำตอบ</div>
+    </div>
+
+    <!-- Q3 ใช้ทำอะไร -->
+    <div class="card">
+      <div class="question-num">06</div>
+      <div class="question-label">โดยปกติส่วนใหญ่ใช้มือถืออยู่กับอะไร<span class="required-star">*</span></div>
+      <div class="options-grid">
+        ${opt('q3','เกม','เกม 🎮')}
+        ${opt('q3','ทำงาน','ทำงาน / การเรียน 📚')}
+        ${opt('q3','โซเชียลเน็ตเวิร์ก','โซเชียลเน็ตเวิร์ก 📲')}
+        ${opt('q3','AI','AI 🤖')}
+      </div>
+      <div class="field-error" id="err_q3">กรุณาเลือกคำตอบ</div>
+    </div>
+
+    <!-- Q4 เริ่มใช้ครั้งแรกเมื่อไร -->
+    <div class="card">
+      <div class="question-num">07</div>
+      <div class="question-label">ปกติตั้งแต่เริ่มวันมา เริ่มใช้โทรศัพท์ครั้งแรกเมื่อไร<span class="required-star">*</span></div>
+      <div class="options-grid">
+        ${opt('q4','ตื่นนอน','ตื่นนอนทันที ☀️')}
+        ${opt('q4','เที่ยง','ช่วงเที่ยง 🌤️')}
+        ${opt('q4','ตอนเย็น','ตอนเย็น 🌆')}
+        ${opt('q4','ไม่แตะเลย','ไม่แตะเลย 🙅')}
+      </div>
+      <div class="field-error" id="err_q4">กรุณาเลือกคำตอบ</div>
+    </div>
+
+    <!-- Q5 ใช้ AI บ่อยแค่ไหน -->
+    <div class="card">
+      <div class="question-num">08</div>
+      <div class="question-label">ใช้ AI บ่อยแค่ไหน? (บอกมาซะดีๆ 😏)<br><span style="font-size:.85em;color:var(--muted);font-family:'Sarabun',sans-serif">รวม AI ทุกชนิด: ChatGPT, Gemini, Claude, Grok, Meta AI, Copilot ฯลฯ</span><span class="required-star">*</span></div>
+      <div class="options-grid">
+        <label class="option-item">
+          <input type="radio" name="q5" value="ไม่เคย" data-popup="q5_never">
+          <span class="option-label"><span class="option-dot"></span>ไม่เคย 🙈</span>
+        </label>
+        ${opt('q5','ครั้งคราว','ครั้งคราว')}
+        ${opt('q5','ค่อนข้างบ่อย','ค่อนข้างบ่อย')}
+        ${opt('q5','บ่อย','บ่อย 🤖')}
+      </div>
+      <div class="field-error" id="err_q5">กรุณาเลือกคำตอบ</div>
+    </div>
+
     <div class="btn-row">
       <button class="btn btn-ghost" onclick="goToPage1()">
-        <svg class="btn-icon btn-icon-back" viewBox="0 0 18 18" fill="none">
-          <path d="M15 9H3M8 14l-5-5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+        <svg class="btn-icon btn-icon-back" viewBox="0 0 18 18" fill="none"><path d="M15 9H3M8 14l-5-5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
         <span>ย้อนกลับ</span>
       </button>
       <button class="btn btn-primary" id="submitBtn" onclick="submitSurvey()">
         <span class="spinner" id="spinner"></span>
         <span id="btnText">ส่งแบบสอบถาม</span>
-        <svg class="btn-icon" id="btnArrow" viewBox="0 0 18 18" fill="none">
-          <path d="M3 9h12M10 4l5 5-5 5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+        <svg class="btn-icon" id="btnArrow" viewBox="0 0 18 18" fill="none"><path d="M3 9h12M10 4l5 5-5 5" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
     </div>
     <p style="text-align:center;margin-top:14px;font-size:11px;color:var(--muted)">🔒 คำตอบของคุณถูกเก็บรักษาอย่างปลอดภัย</p>`;
 }
 
-/* ── Go to Page 2: validate first, then inject HTML, then show ── */
+/* ════════════════════════════════
+   ATTACH POPUP LISTENERS (called after page 2 is injected)
+════════════════════════════════ */
+function attachPopupListeners(){
+  document.querySelectorAll('input[data-popup]').forEach(radio=>{
+    radio.addEventListener('click', function(e){
+      e.preventDefault(); // stop it from checking immediately
+      const config = popupConfigs[this.dataset.popup];
+      if(config) showPopup(config, this);
+    });
+  });
+}
+
+/* ════════════════════════════════
+   NAV
+════════════════════════════════ */
 window.goToPage2 = function(){
   clearErrs();
-  let ok = true;
-  if(!document.getElementById('q_class').value){ showErr('err_class'); ok=false; }
-  const age = document.getElementById('q_age').value;
-  if(!age || isNaN(age) || Number(age)<1){ showErr('err_age'); ok=false; }
-  if(!document.querySelector('input[name="gender"]:checked')){ showErr('err_gender'); ok=false; }
-  if(!ok){ toast('กรุณากรอกข้อมูลให้ครบถ้วน','error'); return; }
+  let ok=true;
+  if(!document.getElementById('q_class').value){showErr('err_class');ok=false;}
+  const age=document.getElementById('q_age').value;
+  if(!age||isNaN(age)||Number(age)<1){showErr('err_age');ok=false;}
+  if(!document.querySelector('input[name="gender"]:checked')){showErr('err_gender');ok=false;}
+  if(!ok){toast('กรุณากรอกข้อมูลให้ครบถ้วน','error');return;}
 
-  // Hide page 1
-  document.getElementById('page1').style.display = 'none';
-
-  // Inject page 2 into mount point (only now does it enter the DOM)
-  const mount = document.getElementById('page2-mount');
-  mount.innerHTML = buildPage2HTML();
-
+  document.getElementById('page1').style.display='none';
+  const mount=document.getElementById('page2-mount');
+  mount.innerHTML=buildPage2HTML();
+  attachPopupListeners();
   updateProgress(2);
   window.scrollTo({top:0,behavior:'smooth'});
 };
 
-/* ── Go back: remove page 2 from DOM entirely, show page 1 ── */
 window.goToPage1 = function(){
-  // Wipe page 2 out of the DOM completely
-  document.getElementById('page2-mount').innerHTML = '';
-
-  document.getElementById('page1').style.display = 'block';
+  document.getElementById('page2-mount').innerHTML='';
+  document.getElementById('page1').style.display='block';
   updateProgress(1);
   window.scrollTo({top:0,behavior:'smooth'});
 };
 
-/* ── Submit ── */
+/* ════════════════════════════════
+   SUBMIT
+════════════════════════════════ */
 window.submitSurvey = async function(){
   clearErrs();
-  let ok = true;
+  let ok=true;
   ['q1','q2','q3','q4','q5'].forEach(q=>{
-    if(!document.querySelector(`input[name="${q}"]:checked`)){ showErr(`err_${q}`); ok=false; }
+    if(!document.querySelector(`input[name="${q}"]:checked`)){showErr(`err_${q}`);ok=false;}
   });
-  if(!ok){ toast('กรุณาตอบทุกข้อ','error'); return; }
+  if(!ok){toast('กรุณาตอบทุกข้อ','error');return;}
 
-  const btn = document.getElementById('submitBtn');
-  document.getElementById('spinner').style.display = 'block';
-  document.getElementById('btnText').textContent = 'กำลังบันทึก…';
-  document.getElementById('btnArrow').style.display = 'none';
-  btn.disabled = true;
+  const btn=document.getElementById('submitBtn');
+  document.getElementById('spinner').style.display='block';
+  document.getElementById('btnText').textContent='กำลังบันทึก…';
+  document.getElementById('btnArrow').style.display='none';
+  btn.disabled=true;
 
-  const payload = {
-    class:  document.getElementById('q_class').value,
-    age:    Number(document.getElementById('q_age').value),
-    gender: document.querySelector('input[name="gender"]:checked').value,
-    q1: document.querySelector('input[name="q1"]:checked').value,
-    q2: document.querySelector('input[name="q2"]:checked').value,
-    q3: document.querySelector('input[name="q3"]:checked').value,
-    q4: document.querySelector('input[name="q4"]:checked').value,
-    q5: document.querySelector('input[name="q5"]:checked').value,
-    submittedAt: new Date().toISOString()
+  const payload={
+    class: document.getElementById('q_class').value,
+    age:   Number(document.getElementById('q_age').value),
+    gender:document.querySelector('input[name="gender"]:checked').value,
+    q1:document.querySelector('input[name="q1"]:checked').value,
+    q2:document.querySelector('input[name="q2"]:checked').value,
+    q3:document.querySelector('input[name="q3"]:checked').value,
+    q4:document.querySelector('input[name="q4"]:checked').value,
+    q5:document.querySelector('input[name="q5"]:checked').value,
+    submittedAt:new Date().toISOString()
   };
 
-  try {
+  try{
     if(!window._db) throw new Error('Firebase not ready');
-    await window._push(window._ref(window._db, 'surveys'), payload);
+    await window._push(window._ref(window._db,'surveys'),payload);
 
-    // Remove everything, show success
-    document.getElementById('page2-mount').innerHTML = '';
-    document.querySelector('.progress-wrap').style.display = 'none';
-    document.querySelector('.page-indicator').style.display = 'none';
-    document.getElementById('successScreen').style.display = 'block';
+    // Mark session as done
+    markDone();
+
+    hideAll();
+    document.getElementById('successScreen').style.display='block';
     toast('บันทึกสำเร็จ!','success');
   } catch(e){
     console.error(e);
     toast('เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง','error');
-    btn.disabled = false;
-    document.getElementById('spinner').style.display = 'none';
-    document.getElementById('btnText').textContent = 'ส่งแบบสอบถาม';
-    document.getElementById('btnArrow').style.display = 'block';
+    btn.disabled=false;
+    document.getElementById('spinner').style.display='none';
+    document.getElementById('btnText').textContent='ส่งแบบสอบถาม';
+    document.getElementById('btnArrow').style.display='block';
   }
 };
-
-updateProgress(1);
 </script>
 </body>
 </html>
