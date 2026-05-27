@@ -27,11 +27,13 @@
 
     /* MUSIC PLAYER */
     .music-player{
-      position:fixed;bottom:24px;right:24px;z-index:999;
+      position:fixed;bottom:24px;right:24px;z-index:9999;
       display:flex;align-items:center;gap:12px;
-      background:var(--surface);border:1px solid var(--border);border-radius:100px;
-      padding:10px 18px;max-width:300px;
-      box-shadow:0 4px 24px rgba(0,0,0,.12);
+      background:#fff;
+      border:1px solid rgba(0,0,0,.1);
+      border-radius:100px;
+      padding:10px 16px 10px 10px;
+      box-shadow:0 6px 28px rgba(0,0,0,.15), 0 1px 4px rgba(0,0,0,.08);
     }
     .music-btn{width:34px;height:34px;border-radius:50%;border:none;background:linear-gradient(135deg,#a8793a,#c49a52);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform var(--tr),box-shadow var(--tr)}
     .music-btn:hover{transform:scale(1.08);box-shadow:0 4px 16px rgba(168,121,58,.35)}
@@ -593,5 +595,23 @@ window.submitSurvey = async function(){
   }
 };
 </script>
+<!-- MUSIC PLAYER — fixed outside all containers -->
+<div class="music-player" id="musicPlayer">
+  <button class="music-btn" id="musicBtn" onclick="toggleMusic()" title="เล่น/หยุด">
+    <svg id="iconPlay" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 2l9 5-9 5V2z" fill="#fff"/></svg>
+    <svg id="iconPause" width="14" height="14" viewBox="0 0 14 14" fill="none" style="display:none"><rect x="2" y="1" width="4" height="12" rx="1.5" fill="#fff"/><rect x="8" y="1" width="4" height="12" rx="1.5" fill="#fff"/></svg>
+  </button>
+  <div class="music-info">
+    <div class="music-title">🎵 [ชื่อเพลง — Placeholder]</div>
+    <div class="music-sub">Background Music</div>
+  </div>
+  <div class="music-wave paused" id="musicWave">
+    <span style="height:40%"></span><span></span><span></span><span></span><span></span>
+  </div>
+</div>
+<audio id="bgAudio" loop>
+  <source src="[YOUR_MUSIC_URL_HERE.mp3]" type="audio/mpeg">
+</audio>
+
 </body>
 </html>
