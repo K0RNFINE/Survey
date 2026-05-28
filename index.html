@@ -243,7 +243,7 @@
   <div class="already-screen" id="alreadyScreen">
     <div class="success-emblem">🔒</div>
     <h2>ตอบแล้ว!</h2>
-    <p>คุณได้ทำแบบสอบถามนี้ไปแล้ว<br>ขอบคุณสำหรับความร่วมมือนะครับ 🙏<br><span style="font-size:12px;color:var(--muted);margin-top:8px;display:block">หากต้องการตอบใหม่ ให้ปิดแล้วเปิดเบราว์เซอร์ใหม่</span></p>
+    <p>คุณได้ทำแบบสอบถามนี้ไปแล้ว<br>ขอบคุณสำหรับความร่วมมือนะครับ 🙏<br><span style="font-size:12px;color:var(--muted);margin-top:8px;display:block">หากต้องการตอบใหม่กรุณาบอกผู้สำรวจ</span></p>
   </div>
 
   <!-- SUCCESS -->
@@ -294,6 +294,12 @@ function hideAll(){
 
 // Check on load
 window.addEventListener('DOMContentLoaded', ()=>{
+  // Secret unlock: visit page with #reset in URL
+  if(window.location.hash.toLowerCase() === '#reset'){
+    localStorage.removeItem('survey_phone_done');
+    history.replaceState(null, '', window.location.pathname);
+  }
+
   if(isDone()){
     hideAll();
     document.getElementById('alreadyScreen').style.display='block';
