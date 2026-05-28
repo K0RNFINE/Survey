@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ADMIN · Survey Monitor</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#020408;
+  --panel:#060d16;
+  --panel2:#0a1628;
+  --border:#0f3a5a;
+  --glow:#00d4ff;
+  --glow2:#00ff88;
+  --glow3:#ff6b35;
+  --warn:#ffcc00;
+  --text:#c8e8ff;
+  --muted:#3a6080;
+  --red:#ff3366;
+  --radius:4px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:'Rajdhani',sans-serif;font-weight:400;
+  min-height:100vh;overflow-x:hidden;
+}
+
+/* ── SCANLINE OVERLAY ── */
+body::before{
+  content:'';position:fixed;inset:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,212,255,0.015) 2px,rgba(0,212,255,0.015) 4px);
+  pointer-events:none;z-index:9999;
+}
+body::after{
+  content:'';position:fixed;inset:0;
+  background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(0,100,180,0.08) 0%,transparent 70%);
+  pointer-events:none;z-index:0;
+}
+
+/* ── LAYOUT ── */
+.shell{position:relative;z-index:1;max-width:1400px;margin:0 auto;padding:0 24px 80px}
+
+/* ── TOP BAR ── */
+.topbar{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:20px 0 16px;border-bottom:1px solid var(--border);
+  margin-bottom:32px;
+}
+.topbar-logo{
+  font-family:'Orbitron',monospace;font-size:11px;font-weight:700;
+  letter-spacing:.25em;color:var(--glow);text-transform:uppercase;
+  display:flex;align-items:center;gap:10px;
+}
+.topbar-logo::before{
+  content:'';width:8px;height:8px;background:var(--glow);border-radius:50%;
+  box-shadow:0 0 12px var(--glow);animation:pulse 1.5s ease-in-out infinite;
+}
+.topbar-meta{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted);text-align:right;line-height:1.8}
+.topbar-meta span{color:var(--glow2)}
+
+/* ── HERO STATS ── */
+.hero-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:28px}
+.hero-card{
+  background:var(--panel);border:1px solid var(--border);
+  padding:20px;position:relative;overflow:hidden;
+  clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,0 100%);
+}
+.hero-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--glow),transparent);
+  opacity:.6;
+}
+.hero-card-label{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.15em;text-transform:uppercase;margin-bottom:8px}
+.hero-card-val{font-family:'Orbitron',monospace;font-size:2rem;font-weight:700;color:var(--glow);line-height:1}
+.hero-card-val.green{color:var(--glow2)}
+.hero-card-val.orange{color:var(--glow3)}
+.hero-card-val.warn{color:var(--warn)}
+.hero-card-sub{font-size:11px;color:var(--muted);margin-top:6px}
+.hero-card::after{
+  content:'';position:absolute;bottom:-20px;right:-20px;
+  width:70px;height:70px;border:1px solid var(--border);border-radius:50%;opacity:.3;
+}
+
+/* ── SECTION TITLES ── */
+.section-head{
+  display:flex;align-items:center;gap:12px;
+  font-family:'Orbitron',monospace;font-size:12px;font-weight:600;
+  letter-spacing:.2em;color:var(--glow);text-transform:uppercase;
+  margin-bottom:16px;padding-bottom:10px;
+  border-bottom:1px solid var(--border);
+}
+.section-head::before{content:'▸';color:var(--glow2)}
+.section-num{color:var(--muted);font-size:10px}
+
+/* ── TABLE SECTION ── */
+.table-wrap{overflow-x:auto;margin-bottom:32px}
+.data-table{width:100%;border-collapse:collapse;font-family:'Share Tech Mono',monospace;font-size:12px}
+.data-table th{
+  background:var(--panel2);color:var(--muted);
+  font-family:'Orbitron',monospace;font-size:9px;letter-spacing:.15em;
+  padding:10px 12px;text-align:left;border-bottom:1px solid var(--border);
+  white-space:nowrap;
+}
+.data-table td{
+  padding:9px 12px;border-bottom:1px solid rgba(15,58,90,.5);
+  color:var(--text);vertical-align:middle;white-space:nowrap;
+}
+.data-table tr:hover td{background:rgba(0,212,255,.03)}
+.badge{
+  display:inline-block;padding:2px 8px;border-radius:2px;font-size:10px;
+  font-family:'Share Tech Mono',monospace;letter-spacing:.05em;
+}
+.badge-m{background:rgba(0,212,255,.1);color:var(--glow);border:1px solid rgba(0,212,255,.2)}
+.badge-f{background:rgba(255,107,170,.1);color:#ff6baa;border:1px solid rgba(255,107,170,.2)}
+.badge-x{background:rgba(255,204,0,.1);color:var(--warn);border:1px solid rgba(255,204,0,.2)}
+
+.btn-del{
+  background:rgba(255,51,102,.08);border:1px solid rgba(255,51,102,.3);
+  color:var(--red);font-family:'Share Tech Mono',monospace;font-size:10px;
+  padding:4px 10px;cursor:pointer;border-radius:2px;
+  transition:all .2s;letter-spacing:.05em;
+}
+.btn-del:hover{background:rgba(255,51,102,.2);box-shadow:0 0 10px rgba(255,51,102,.2)}
+
+/* ── ADD FORM ── */
+.add-panel{
+  background:var(--panel);border:1px solid var(--border);
+  padding:20px 24px;margin-bottom:32px;
+  clip-path:polygon(0 0,calc(100% - 16px) 0,100% 16px,100% 100%,0 100%);
+}
+.add-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:14px}
+.add-field{display:flex;flex-direction:column;gap:5px}
+.add-label{font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase}
+.add-input,.add-select{
+  background:var(--panel2);border:1px solid var(--border);color:var(--text);
+  font-family:'Share Tech Mono',monospace;font-size:12px;
+  padding:8px 10px;outline:none;border-radius:2px;width:100%;
+  transition:border-color .2s;
+}
+.add-input:focus,.add-select:focus{border-color:var(--glow);box-shadow:0 0 8px rgba(0,212,255,.1)}
+.add-select option{background:var(--panel2)}
+.btn-add{
+  background:rgba(0,255,136,.08);border:1px solid rgba(0,255,136,.3);
+  color:var(--glow2);font-family:'Orbitron',monospace;font-size:10px;font-weight:600;
+  padding:10px 24px;cursor:pointer;letter-spacing:.1em;
+  transition:all .2s;
+}
+.btn-add:hover{background:rgba(0,255,136,.15);box-shadow:0 0 16px rgba(0,255,136,.2)}
+
+/* ── STATS GRID ── */
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:32px}
+.stat-box{
+  background:var(--panel);border:1px solid var(--border);padding:20px;
+  position:relative;overflow:hidden;
+}
+.stat-box::after{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--glow2),transparent);opacity:.4;
+}
+.stat-box-title{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;margin-bottom:4px}
+.stat-box-val{font-family:'Orbitron',monospace;font-size:1.6rem;font-weight:700;color:var(--glow2)}
+.stat-box-sub{font-size:12px;color:var(--muted);margin-top:4px}
+
+/* ── CHARTS ── */
+.charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:32px}
+.chart-wide{grid-column:span 2}
+.chart-panel{
+  background:var(--panel);border:1px solid var(--border);
+  padding:20px;position:relative;overflow:hidden;
+}
+.chart-panel::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 60% 40% at 50% 0%,rgba(0,212,255,.03) 0%,transparent 70%);
+  pointer-events:none;
+}
+.chart-title{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;margin-bottom:16px}
+.chart-box{position:relative}
+
+/* ── LEADERBOARD ── */
+.lb-wrap{margin-bottom:32px}
+.lb-row{
+  display:flex;align-items:center;gap:14px;
+  padding:10px 14px;margin-bottom:6px;
+  background:var(--panel);border:1px solid var(--border);
+  position:relative;overflow:hidden;transition:border-color .2s;
+}
+.lb-row:hover{border-color:var(--glow)}
+.lb-bar{
+  position:absolute;left:0;top:0;bottom:0;
+  background:linear-gradient(90deg,rgba(0,212,255,.08),transparent);
+  transition:width .6s cubic-bezier(.4,0,.2,1);
+}
+.lb-rank{
+  font-family:'Orbitron',monospace;font-size:13px;font-weight:700;
+  min-width:28px;color:var(--muted);position:relative;z-index:1;
+}
+.lb-rank.gold{color:#ffd700;text-shadow:0 0 10px rgba(255,215,0,.5)}
+.lb-rank.silver{color:#c0c0c0}
+.lb-rank.bronze{color:#cd7f32}
+.lb-room{font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--text);flex:1;position:relative;z-index:1}
+.lb-count{font-family:'Orbitron',monospace;font-size:14px;font-weight:600;color:var(--glow);position:relative;z-index:1}
+.lb-bar-track{flex:2;background:rgba(15,58,90,.5);height:4px;border-radius:2px;position:relative;z-index:1}
+.lb-bar-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--glow),var(--glow2));transition:width .6s cubic-bezier(.4,0,.2,1)}
+
+/* ── LOADING ── */
+.loading{
+  display:flex;align-items:center;justify-content:center;
+  height:200px;flex-direction:column;gap:16px;
+}
+.loading-ring{
+  width:48px;height:48px;border:2px solid var(--border);
+  border-top-color:var(--glow);border-radius:50%;
+  animation:spin .8s linear infinite;
+}
+.loading-text{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:.15em}
+
+/* ── EMPTY ── */
+.empty-row td{text-align:center;color:var(--muted);font-style:italic;padding:32px!important}
+
+/* ── TOAST ── */
+.toast{
+  position:fixed;bottom:24px;right:24px;z-index:10000;
+  background:var(--panel2);border:1px solid var(--border);
+  padding:12px 20px;font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--text);
+  opacity:0;transform:translateY(10px);transition:all .3s;pointer-events:none;
+  clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,0 100%);
+}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast.ok{border-color:rgba(0,255,136,.4);color:var(--glow2)}
+.toast.err{border-color:rgba(255,51,102,.4);color:var(--red)}
+
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 12px var(--glow)}50%{opacity:.4;box-shadow:0 0 4px var(--glow)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+@media(max-width:900px){
+  .hero-grid{grid-template-columns:repeat(2,1fr)}
+  .charts-grid{grid-template-columns:1fr}
+  .chart-wide{grid-column:span 1}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:500px){
+  .hero-grid{grid-template-columns:1fr 1fr}
+  .stats-grid{grid-template-columns:1fr}
+  .add-grid{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-logo">SURVEY ADMIN MONITOR</div>
+  <div class="topbar-meta">
+    SYSTEM: <span>ONLINE</span><br>
+    LAST SYNC: <span id="lastSync">—</span><br>
+    RESPONSES: <span id="topTotal">—</span>
+  </div>
+</div>
+
+<!-- HERO STATS -->
+<div class="hero-grid">
+  <div class="hero-card"><div class="hero-card-label">Total Responses</div><div class="hero-card-val" id="hTotal">—</div><div class="hero-card-sub">all submissions</div></div>
+  <div class="hero-card"><div class="hero-card-label">Avg Age</div><div class="hero-card-val green" id="hAge">—</div><div class="hero-card-sub">years old</div></div>
+  <div class="hero-card"><div class="hero-card-label">Top Room</div><div class="hero-card-val orange" id="hRoom">—</div><div class="hero-card-sub">most responses</div></div>
+  <div class="hero-card"><div class="hero-card-label">Today</div><div class="hero-card-val warn" id="hToday">—</div><div class="hero-card-sub">responses today</div></div>
+</div>
+
+<!-- SECTION 1: RAW DATA -->
+<div class="section-head"><span class="section-num">01 //</span> RESPONSE RECORDS</div>
+<div class="add-panel">
+  <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--glow2);letter-spacing:.12em;margin-bottom:12px">▸ ADD NEW RECORD</div>
+  <div class="add-grid">
+    <div class="add-field"><label class="add-label">ระดับชั้น</label>
+      <select class="add-select" id="a_class">
+        <option value="">เลือก…</option>
+        <option value="ม.5/1">ม.5/1</option><option value="ม.5/2">ม.5/2</option><option value="ม.5/3">ม.5/3</option>
+        <option value="ม.5/4">ม.5/4</option><option value="ม.5/5">ม.5/5</option><option value="ม.5/6">ม.5/6</option>
+        <option value="ม.5/7">ม.5/7</option><option value="ม.5/8">ม.5/8</option><option value="ม.5/9">ม.5/9</option>
+        <option value="ม.5/10">ม.5/10</option><option value="ม.5/11">ม.5/11</option><option value="ม.5/12">ม.5/12</option>
+        <option value="ม.5/13">ม.5/13</option>
+      </select>
+    </div>
+    <div class="add-field"><label class="add-label">อายุ</label><input class="add-input" type="number" id="a_age" placeholder="16" min="10" max="25"/></div>
+    <div class="add-field"><label class="add-label">เพศ</label>
+      <select class="add-select" id="a_gender">
+        <option value="">เลือก…</option>
+        <option value="ชาย">ชาย</option><option value="หญิง">หญิง</option><option value="ไม่ระบุ">ไม่ระบุ</option>
+      </select>
+    </div>
+    <div class="add-field"><label class="add-label">Q1 หยิบโทรศัพท์</label>
+      <select class="add-select" id="a_q1">
+        <option value="">เลือก…</option>
+        <option value="ไม่เลย">ไม่เลย</option><option value="ไม่บ่อย">ไม่บ่อย</option>
+        <option value="ค่อนข้างบ่อย">ค่อนข้างบ่อย</option><option value="บ่อย">บ่อย</option>
+      </select>
+    </div>
+    <div class="add-field"><label class="add-label">Q2 ระยะเวลา</label>
+      <select class="add-select" id="a_q2">
+        <option value="">เลือก…</option>
+        <option value="0-2ชม">0-2ชม</option><option value="2-4ชม">2-4ชม</option>
+        <option value="4-6ชม">4-6ชม</option><option value="6ชม+">6ชม+</option>
+      </select>
+    </div>
+    <div class="add-field"><label class="add-label">Q3 ใช้กับอะไร</label>
+      <select class="add-select" id="a_q3">
+        <option value="">เลือก…</option>
+        <option value="เกม">เกม</option><option value="ทำงาน">ทำงาน</option>
+        <option value="โซเชียลเน็ตเวิร์ก">โซเชียลฯ</option><option value="AI">AI</option>
+      </select>
+    </div>
+    <div class="add-field"><label class="add-label">Q4 เริ่มใช้เมื่อไร</label>
+      <select class="add-select" id="a_q4">
+        <option value="">เลือก…</option>
+        <option value="ตื่นนอน">ตื่นนอน</option><option value="เที่ยง">เที่ยง</option>
+        <option value="ตอนเย็น">ตอนเย็น</option><option value="ไม่แตะเลย">ไม่แตะเลย</option>
+      </select>
+    </div>
+    <div class="add-field"><label class="add-label">Q5 ใช้ AI</label>
+      <select class="add-select" id="a_q5">
+        <option value="">เลือก…</option>
+        <option value="ไม่เคย">ไม่เคย</option><option value="ครั้งคราว">ครั้งคราว</option>
+        <option value="ค่อนข้างบ่อย">ค่อนข้างบ่อย</option><option value="บ่อย">บ่อย</option>
+      </select>
+    </div>
+  </div>
+  <button class="btn-add" onclick="addRecord()">⊕ INSERT RECORD</button>
+</div>
+
+<div class="table-wrap">
+  <table class="data-table">
+    <thead><tr>
+      <th>#</th><th>KEY</th><th>CLASS</th><th>AGE</th><th>GENDER</th>
+      <th>Q1 หยิบโทรศัพท์</th><th>Q2 เวลา</th><th>Q3 ใช้กับ</th><th>Q4 เริ่มใช้</th><th>Q5 AI</th>
+      <th>SUBMITTED</th><th>ACTION</th>
+    </tr></thead>
+    <tbody id="tableBody"><tr><td colspan="12" class="loading"><div class="loading-ring"></div></td></tr></tbody>
+  </table>
+</div>
+
+<!-- SECTION 2: PERSONAL INFO STATS -->
+<div class="section-head"><span class="section-num">02 //</span> DEMOGRAPHIC STATISTICS</div>
+<div class="stats-grid" id="demoStats">
+  <div class="stat-box"><div class="stat-box-title">Total Respondents</div><div class="stat-box-val" id="s_total">—</div><div class="stat-box-sub">unique submissions</div></div>
+  <div class="stat-box"><div class="stat-box-title">Average Age</div><div class="stat-box-val" id="s_age">—</div><div class="stat-box-sub">years</div></div>
+  <div class="stat-box"><div class="stat-box-title">Age Range</div><div class="stat-box-val" id="s_agerange" style="font-size:1.1rem">—</div><div class="stat-box-sub">min – max</div></div>
+  <div class="stat-box"><div class="stat-box-title">Male</div><div class="stat-box-val" id="s_male">—</div><div class="stat-box-sub" id="s_male_pct"></div></div>
+  <div class="stat-box"><div class="stat-box-title">Female</div><div class="stat-box-val" id="s_female" style="color:#ff6baa">—</div><div class="stat-box-sub" id="s_female_pct"></div></div>
+  <div class="stat-box"><div class="stat-box-title">ไม่ระบุ / อื่นๆ</div><div class="stat-box-val" id="s_other" style="color:var(--warn)">—</div><div class="stat-box-sub" id="s_other_pct"></div></div>
+</div>
+
+<div class="charts-grid" style="margin-bottom:32px">
+  <div class="chart-panel"><div class="chart-title">GENDER DISTRIBUTION</div><div class="chart-box" style="height:220px"><canvas id="chartGender"></canvas></div></div>
+  <div class="chart-panel"><div class="chart-title">RESPONSES BY ROOM</div><div class="chart-box" style="height:220px"><canvas id="chartRoom"></canvas></div></div>
+</div>
+
+<!-- SECTION 3: QUESTION STATS -->
+<div class="section-head"><span class="section-num">03 //</span> QUESTION ANALYTICS</div>
+<div class="charts-grid">
+  <div class="chart-panel chart-wide"><div class="chart-title">SCREEN TIME DISTRIBUTION (Q2)</div><div class="chart-box" style="height:200px"><canvas id="chartScreentime"></canvas></div></div>
+  <div class="chart-panel chart-wide"><div class="chart-title">AI USAGE FREQUENCY (Q5)</div><div class="chart-box" style="height:200px"><canvas id="chartAI"></canvas></div></div>
+  <div class="chart-panel"><div class="chart-title">MAIN PHONE PURPOSE (Q3)</div><div class="chart-box" style="height:240px"><canvas id="chartPurpose"></canvas></div></div>
+  <div class="chart-panel"><div class="chart-title">FIRST PHONE USE OF DAY (Q4)</div><div class="chart-box" style="height:240px"><canvas id="chartFirstUse"></canvas></div></div>
+  <div class="chart-panel chart-wide"><div class="chart-title">PHONE PICKUP FREQUENCY (Q1)</div><div class="chart-box" style="height:180px"><canvas id="chartPickup"></canvas></div></div>
+</div>
+
+<!-- SECTION 4: LEADERBOARD -->
+<div class="section-head"><span class="section-num">04 //</span> ROOM LEADERBOARD</div>
+<div class="lb-wrap" id="leaderboard">
+  <div class="loading"><div class="loading-ring"></div><div class="loading-text">FETCHING DATA…</div></div>
+</div>
+
+</div><!-- /shell -->
+
+<div class="toast" id="toast"></div>
+
+<!-- Firebase -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, onValue, push, remove } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+const app = initializeApp({
+  apiKey:"AIzaSyAapmeH48KAPa5vbojdfRqH-h-P6wJCldc",
+  authDomain:"survey-c4b83.firebaseapp.com",
+  databaseURL:"https://survey-c4b83-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId:"survey-c4b83",
+  storageBucket:"survey-c4b83.firebasestorage.app",
+  messagingSenderId:"444053252944",
+  appId:"1:444053252944:web:81a92130b2317810935a55"
+});
+
+const db = getDatabase(app);
+window._db = db;
+window._ref = ref;
+window._push = push;
+window._remove = remove;
+
+// Listen for real-time updates
+onValue(ref(db,'surveys'), snap => {
+  const raw = snap.val() || {};
+  const records = Object.entries(raw).map(([k,v])=>({...v, _key:k}));
+  window._allRecords = records;
+  renderAll(records);
+  document.getElementById('lastSync').textContent = new Date().toLocaleTimeString('th-TH');
+});
+</script>
+
+<script>
+/* ── CHART INSTANCES ── */
+const charts = {};
+
+function destroyChart(id){
+  if(charts[id]){ charts[id].destroy(); delete charts[id]; }
+}
+
+const CHART_DEFAULTS = {
+  color:'#3a6080',
+  font:{ family:'Share Tech Mono', size:10 },
+};
+Chart.defaults.color = '#3a6080';
+Chart.defaults.font.family = 'Share Tech Mono';
+Chart.defaults.font.size = 10;
+
+const PALETTE = ['#00d4ff','#00ff88','#ff6b35','#ffcc00','#ff6baa','#aa88ff','#66ccff'];
+
+function barChart(id, labels, data, label, color){
+  destroyChart(id);
+  const ctx = document.getElementById(id).getContext('2d');
+  charts[id] = new Chart(ctx,{
+    type:'bar',
+    data:{labels, datasets:[{
+      label, data,
+      backgroundColor: color || 'rgba(0,212,255,.25)',
+      borderColor: color ? color.replace('25)','80)') : 'rgba(0,212,255,.8)',
+      borderWidth:1, borderRadius:2,
+    }]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{
+        backgroundColor:'#060d16',borderColor:'#0f3a5a',borderWidth:1,
+        titleColor:'#00d4ff',bodyColor:'#c8e8ff',
+      }},
+      scales:{
+        x:{grid:{color:'rgba(15,58,90,.5)'},ticks:{color:'#3a6080'}},
+        y:{grid:{color:'rgba(15,58,90,.5)'},ticks:{color:'#3a6080'},beginAtZero:true,
+          ticks:{stepSize:1, color:'#3a6080'}
+        }
+      }
+    }
+  });
+}
+
+function doughnutChart(id, labels, data){
+  destroyChart(id);
+  const ctx = document.getElementById(id).getContext('2d');
+  charts[id] = new Chart(ctx,{
+    type:'doughnut',
+    data:{labels, datasets:[{data, backgroundColor:PALETTE.slice(0,labels.length).map(c=>c+'44'), borderColor:PALETTE.slice(0,labels.length), borderWidth:1.5}]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      cutout:'65%',
+      plugins:{
+        legend:{position:'right',labels:{color:'#c8e8ff',padding:12,font:{size:10}}},
+        tooltip:{backgroundColor:'#060d16',borderColor:'#0f3a5a',borderWidth:1,titleColor:'#00d4ff',bodyColor:'#c8e8ff'}
+      }
+    }
+  });
+}
+
+function pieChart(id, labels, data){
+  destroyChart(id);
+  const ctx = document.getElementById(id).getContext('2d');
+  charts[id] = new Chart(ctx,{
+    type:'pie',
+    data:{labels, datasets:[{data, backgroundColor:PALETTE.slice(0,labels.length).map(c=>c+'55'), borderColor:PALETTE.slice(0,labels.length), borderWidth:1.5}]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{position:'right',labels:{color:'#c8e8ff',padding:12,font:{size:10}}},
+        tooltip:{backgroundColor:'#060d16',borderColor:'#0f3a5a',borderWidth:1,titleColor:'#00d4ff',bodyColor:'#c8e8ff'}
+      }
+    }
+  });
+}
+
+/* ── COUNT HELPER ── */
+function countBy(records, key){
+  const m = {};
+  records.forEach(r=>{ const v=r[key]||'N/A'; m[v]=(m[v]||0)+1; });
+  return m;
+}
+
+/* ── RENDER ALL ── */
+function renderAll(records){
+  renderTable(records);
+  renderHero(records);
+  renderDemo(records);
+  renderCharts(records);
+  renderLeaderboard(records);
+}
+
+/* ── TABLE ── */
+function renderTable(records){
+  const tbody = document.getElementById('tableBody');
+  if(!records.length){
+    tbody.innerHTML=`<tr class="empty-row"><td colspan="12">NO DATA FOUND</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = records.map((r,i)=>{
+    const dt = r.submittedAt ? new Date(r.submittedAt) : null;
+    const dtStr = dt ? dt.toLocaleString('th-TH',{dateStyle:'short',timeStyle:'short'}) : '—';
+    const gBadge = r.gender==='ชาย' ? 'badge-m' : r.gender==='หญิง' ? 'badge-f' : 'badge-x';
+    return `<tr>
+      <td style="color:var(--muted)">${i+1}</td>
+      <td style="color:var(--muted);font-size:9px">${r._key.slice(-6)}</td>
+      <td style="color:var(--glow)">${r.class||'—'}</td>
+      <td>${r.age||'—'}</td>
+      <td><span class="badge ${gBadge}">${r.gender||'—'}</span></td>
+      <td>${r.q1||'—'}</td>
+      <td>${r.q2||'—'}</td>
+      <td>${r.q3||'—'}</td>
+      <td>${r.q4||'—'}</td>
+      <td>${r.q5||'—'}</td>
+      <td style="color:var(--muted);font-size:10px">${dtStr}</td>
+      <td><button class="btn-del" onclick="deleteRecord('${r._key}')">✕ DEL</button></td>
+    </tr>`;
+  }).join('');
+}
+
+/* ── HERO ── */
+function renderHero(records){
+  const n = records.length;
+  document.getElementById('hTotal').textContent = n;
+  document.getElementById('topTotal').textContent = n;
+  const ages = records.map(r=>Number(r.age)).filter(a=>a>0);
+  document.getElementById('hAge').textContent = ages.length ? (ages.reduce((a,b)=>a+b,0)/ages.length).toFixed(1) : '—';
+
+  const roomCounts = countBy(records,'class');
+  const topRoom = Object.entries(roomCounts).sort((a,b)=>b[1]-a[1])[0];
+  document.getElementById('hRoom').textContent = topRoom ? topRoom[0] : '—';
+
+  const today = new Date().toDateString();
+  const todayCount = records.filter(r=> r.submittedAt && new Date(r.submittedAt).toDateString()===today).length;
+  document.getElementById('hToday').textContent = todayCount;
+}
+
+/* ── DEMOGRAPHIC ── */
+function renderDemo(records){
+  const n = records.length;
+  document.getElementById('s_total').textContent = n;
+  const ages = records.map(r=>Number(r.age)).filter(a=>a>0);
+  document.getElementById('s_age').textContent = ages.length ? (ages.reduce((a,b)=>a+b,0)/ages.length).toFixed(1) : '—';
+  document.getElementById('s_agerange').textContent = ages.length ? `${Math.min(...ages)} – ${Math.max(...ages)}` : '—';
+
+  const male = records.filter(r=>r.gender==='ชาย').length;
+  const female = records.filter(r=>r.gender==='หญิง').length;
+  const other = records.filter(r=>r.gender==='ไม่ระบุ').length;
+  const pct = v => n ? `${(v/n*100).toFixed(1)}%` : '—';
+  document.getElementById('s_male').textContent = male;
+  document.getElementById('s_male_pct').textContent = pct(male);
+  document.getElementById('s_female').textContent = female;
+  document.getElementById('s_female_pct').textContent = pct(female);
+  document.getElementById('s_other').textContent = other;
+  document.getElementById('s_other_pct').textContent = pct(other);
+}
+
+/* ── CHARTS ── */
+function renderCharts(records){
+  // Gender pie
+  const gCount = countBy(records,'gender');
+  pieChart('chartGender', Object.keys(gCount), Object.values(gCount));
+
+  // Room bar
+  const rCount = countBy(records,'class');
+  const rSorted = Object.entries(rCount).sort((a,b)=>a[0].localeCompare(b[0],undefined,{numeric:true}));
+  barChart('chartRoom', rSorted.map(e=>e[0]), rSorted.map(e=>e[1]), 'Responses', 'rgba(0,212,255,.25)');
+
+  // Screentime bar (Q2)
+  const stOrder = ['0-2ชม','2-4ชม','4-6ชม','6ชม+'];
+  const stCount = countBy(records,'q2');
+  barChart('chartScreentime', stOrder, stOrder.map(k=>stCount[k]||0), 'คน', 'rgba(0,255,136,.25)');
+
+  // AI usage bar (Q5)
+  const aiOrder = ['ไม่เคย','ครั้งคราว','ค่อนข้างบ่อย','บ่อย'];
+  const aiCount = countBy(records,'q5');
+  barChart('chartAI', aiOrder, aiOrder.map(k=>aiCount[k]||0), 'คน', 'rgba(170,136,255,.25)');
+
+  // Purpose doughnut (Q3)
+  const pCount = countBy(records,'q3');
+  doughnutChart('chartPurpose', Object.keys(pCount), Object.values(pCount));
+
+  // First use pie (Q4)
+  const fuOrder = ['ตื่นนอน','เที่ยง','ตอนเย็น','ไม่แตะเลย'];
+  const fuCount = countBy(records,'q4');
+  pieChart('chartFirstUse', fuOrder, fuOrder.map(k=>fuCount[k]||0));
+
+  // Pickup frequency bar (Q1)
+  const pkOrder = ['ไม่เลย','ไม่บ่อย','ค่อนข้างบ่อย','บ่อย'];
+  const pkCount = countBy(records,'q1');
+  barChart('chartPickup', pkOrder, pkOrder.map(k=>pkCount[k]||0), 'คน', 'rgba(255,107,53,.25)');
+}
+
+/* ── LEADERBOARD ── */
+function renderLeaderboard(records){
+  const roomCounts = countBy(records,'class');
+  const sorted = Object.entries(roomCounts).sort((a,b)=>b[1]-a[1]);
+  const max = sorted[0]?.[1] || 1;
+  const rankClass = ['gold','silver','bronze'];
+  const lb = document.getElementById('leaderboard');
+  if(!sorted.length){lb.innerHTML='<div style="color:var(--muted);font-family:Share Tech Mono,monospace;font-size:12px;padding:20px">NO DATA</div>';return;}
+  lb.innerHTML = sorted.map(([room,count],i)=>`
+    <div class="lb-row">
+      <div class="lb-bar" style="width:${(count/max*100)}%"></div>
+      <div class="lb-rank ${rankClass[i]||''}">${i+1}</div>
+      <div class="lb-room">${room}</div>
+      <div class="lb-bar-track"><div class="lb-bar-fill" style="width:${(count/max*100)}%"></div></div>
+      <div class="lb-count">${count}</div>
+    </div>`).join('');
+}
+
+/* ── ADD RECORD ── */
+window.addRecord = async function(){
+  const get = id => document.getElementById(id).value;
+  if(!get('a_class')||!get('a_age')||!get('a_gender')||!get('a_q1')||!get('a_q2')||!get('a_q3')||!get('a_q4')||!get('a_q5')){
+    showToast('⚠ กรุณากรอกข้อมูลให้ครบทุกช่อง','err'); return;
+  }
+  let waited=0;
+  while(!window._db && waited<50){ await new Promise(r=>setTimeout(r,100)); waited++; }
+  try{
+    await window._push(window._ref(window._db,'surveys'),{
+      class:get('a_class'), age:Number(get('a_age')), gender:get('a_gender'),
+      q1:get('a_q1'), q2:get('a_q2'), q3:get('a_q3'), q4:get('a_q4'), q5:get('a_q5'),
+      submittedAt: new Date().toISOString()
+    });
+    ['a_class','a_age','a_gender','a_q1','a_q2','a_q3','a_q4','a_q5'].forEach(id=>{ document.getElementById(id).value=''; });
+    showToast('✓ RECORD INSERTED','ok');
+  } catch(e){ console.error(e); showToast('✕ INSERT FAILED','err'); }
+};
+
+/* ── DELETE ── */
+window.deleteRecord = async function(key){
+  if(!confirm('DELETE this record?')) return;
+  try{
+    await window._remove(window._ref(window._db,`surveys/${key}`));
+    showToast('✓ RECORD DELETED','ok');
+  } catch(e){ console.error(e); showToast('✕ DELETE FAILED','err'); }
+};
+
+/* ── TOAST ── */
+function showToast(msg, type='ok'){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type} show`;
+  setTimeout(()=>{ t.className='toast'; }, 3000);
+}
+
+// Init with empty state until Firebase loads
+window._allRecords = [];
+</script>
+</body>
+</html>
